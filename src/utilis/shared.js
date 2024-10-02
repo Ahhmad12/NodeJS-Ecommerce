@@ -15,4 +15,13 @@ const generateUniqueHexString = () => {
   return uniqueString;
 };
 
-export { generateOTP, generateUniqueHexString };
+const generateSlug = (name) => {
+  return name
+    .toLowerCase() // Convert to lowercase
+    .replace(/\s+/g, "_") // Replace spaces with underscores
+    .replace(/[^\w\-]+/g, "") // Remove all non-word characters
+    .replace(/--+/g, "-") // Replace multiple hyphens with a single hyphen
+    .trim(); // Trim whitespace from both ends
+};
+
+export { generateOTP, generateUniqueHexString, generateSlug };

@@ -8,7 +8,6 @@ import {
 } from "../utilis/cloudinary.js";
 import { ApiResponse } from "../utilis/apiResponse.js";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 import { generateOTP, generateUniqueHexString } from "../utilis/shared.js";
 import { emailOtp } from "../utilis/email.service.js";
 
@@ -35,7 +34,6 @@ const registerUser = asyncHandler(async (req, res) => {
   if ([email, password, fullName].some((fields) => fields?.trim() == "")) {
     throw new ApiError(400, "All Fields are required");
   }
-
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
@@ -304,7 +302,19 @@ const addAddress = asyncHandler(async (req, res) => {
       .status(404)
       .json(new ApiResponse(404, null, "User not found", false));
   }
-
+  // Check if the user already has 5 addresses
+  if (user.address.length >= 5) {
+    return res
+      .status(400)
+      .json(
+        new ApiResponse(
+          400,
+          null,
+          "You cannot add more than 5 addresses",
+          false
+        )
+      );
+  }
   // Create a new address document
   const newAddress = await Address.create({
     userId: user._id,

@@ -9,15 +9,27 @@ cloudinary.config({
 
 const uploadOnCloudinary = async (localFilePath) => {
   try {
-    if (!localFilePath) return null;
+    if (!localFilePath) {
+      console.error("No file path provided for Cloudinary upload.");
+      return null;
+    }
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
-    fs.unlinkSync(localFilePath);
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
+    if (!response || !response.secure_url) {
+      console.error("No secure URL returned from Cloudinary:", response);
+      return null;
+    }
     return response;
   } catch (error) {
-    fs.unlinkSync(localFilePath); // remove the locally saved temporary files
-    console.log("ERRRO ", error);
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
+    console.error("Error uploading to Cloudinary:", error);
+    return null;
   }
 };
 
